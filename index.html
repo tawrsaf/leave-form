@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج تحديد الرغبات</title>
+
+<style>
+    body {
+        background: #eef2f7;
+        margin: 0;
+        font-family: 'Tahoma', sans-serif;
+        display: flex;
+        justify-content: center;
+        padding: 40px 10px;
+    }
+
+    .card {
+        background: white;
+        width: 100%;
+        max-width: 480px;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+        animation: fade 0.4s ease;
+    }
+
+    @keyframes fade { from {opacity:0; transform:translateY(10px);} to {opacity:1;} }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #333;
+    }
+
+    label {
+        font-weight: bold;
+        margin: 10px 0 6px;
+        display: block;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    textarea { height: 80px; resize: none; }
+
+    .group-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    input[type=radio] { display: none; }
+
+    .btn-group {
+        flex: 1;
+        padding: 12px 0;
+        background: #f7f7f7;
+        border: 2px solid #ddd;
+        text-align: center;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.25s;
+        font-weight: bold;
+    }
+
+    .btn-group span {
+        display: block;
+        font-size: 12px;
+        margin-top: 3px;
+        color: #666;
+    }
+
+    input[type=radio]:checked + label.btn-group {
+        background: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+
+    input[type=radio]:checked + label.btn-group span {
+        color: #e8f1ff;
+    }
+
+    .submit {
+        width: 100%;
+        padding: 14px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 17px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: 0.25s;
+    }
+
+    .submit:hover { background: #0068d6; }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>نموذج تحديد الرغبات</h2>
+
+    <label>الاسم:</label>
+    <input id="name" type="text">
+
+    <label>تاريخ المغادرة للإجازة السابقة:</label>
+    <input id="lastLeaveDate" type="date">
+
+    <label>المجموعة:</label>
+
+    <div class="group-box">
+        <input type="radio" id="A" name="group" value="A">
+        <label class="btn-group" for="A">A <span>أسبوع قبل الإجازة</span></label>
+
+        <input type="radio" id="B" name="group" value="B">
+        <label class="btn-group" for="B">B <span>أسبوع بعد الإجازة</span></label>
+
+        <input type="radio" id="C" name="group" value="C">
+        <label class="btn-group" for="C">C <span>أكتفي بالإجازة الرسمية</span></label>
+    </div>
+
+    <label>مبررات الرغبة:</label>
+    <textarea id="notes"></textarea>
+
+    <button class="submit" onclick="send()">إرسال</button>
+</div>
+
+<script>
+function send() {
+
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbwpaFpjIsCnnUwi9kNeC_uLEPRVGklFpwfd7APa-LheHdn2n1ykbuBwKCHfH-aPd_lI/exec"; // ← انسخ الرابط هنا فقط
+
+    let name = document.getElementById("name").value.trim();
+    let lastLeaveDate = document.getElementById("lastLeaveDate").value;
+    let notes = document.getElementById("notes").value.trim();
+    let group = document.querySelector("input[name='group']:checked");
+
+    if (!name || !lastLeaveDate || !group) {
+        alert("⚠️ يرجى تعبئة جميع الحقول");
+        return;
+    }
+
+    group = group.value;
+
+    fetch(webAppUrl, {
+        method: "POST",
+        body: JSON.stringify({
+            name: name,
+            lastLeaveDate: lastLeaveDate,
+            group: group,
+            notes: notes
+        })
+    })
+    .then(r => r.text())
+    .then(r => {
+        alert("✅ تم الإرسال بنجاح");
+
+        document.getElementById("name").value = "";
+        document.getElementById("lastLeaveDate").value = "";
+        document.getElementById("notes").value = "";
+        document.querySelectorAll("input[name='group']").forEach(i => i.checked = false);
+    })
+    .catch(err => {
+        alert("❌ حدث خطأ، حاول مجددًا");
+        console.log(err);
+    });
+}
+</script>
+
+</body>
+</html>
